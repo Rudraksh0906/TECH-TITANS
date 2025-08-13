@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Indore Clean-Up</title>
+  <!-- Load Tailwind CSS from CDN for styling -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Use Inter font for a modern look */
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    /* New: Background image with a subtle dark gradient overlay */
+    body {
+      background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.6)), url('https://image.slidesharecdn.com/presentation1swachbharat-150422211739-conversion-gate01/75/swach-bharat-abhiyan-1-2048.jpg');
+      background-size: cover;
+      background-position: top; /* This ensures the top of the image is not cropped */
+      position: relative;
+    }
+    /* Custom styling for the main container to remove the white box and use a dark gradient */
+    #app {
+      background-image: linear-gradient(to bottom right, rgba(20, 20, 20, 0.7), rgba(40, 40, 40, 0.7));
+      backdrop-filter: blur(5px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+      color: #e5e7eb; /* Light text color for contrast */
+      padding: 1.5rem;
+      border-radius: 1rem;
+      width: 95%;
+      max-width: 600px;
+      margin: 2rem auto;
+    }
+    /* Style for labels inside the dark container */
+    .dark-text {
+        color: #e5e7eb;
+    }
+    /* Custom button styling for a more creative look */
+    .submit-button {
+      background-image: linear-gradient(to right, #2563eb, #3b82f6);
+      transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    }
+    .submit-button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+    .submit-button:disabled {
+      background-image: none;
+      background-color: #9ca3af;
+      cursor: not-allowed;
+      transform: none;
+    }
+    /* Animation for the success message checkmark */
+    @keyframes checkmark {
+      0% {
+        stroke-dashoffset: 200;
+      }
+      100% {
+        stroke-dashoffset: 0;
+      }
+    }
+    .checkmark-path {
+      stroke-dasharray: 200;
+      stroke-dashoffset: 200;
+      animation: checkmark 0.75s ease-in-out forwards;
+    }
+    /* New: CSS for a shimmering text effect */
+    .shimmer-text {
+        background: linear-gradient(to right, #fff 20%, #f6e05e 40%, #fff 60%);
+        background-size: 200% auto;
+        color: #000;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: shimmer 4s linear infinite;
+    }
+    @keyframes shimmer {
+        to {
+            background-position: 200% center;
+        }
+    }
+    /* Making the app container take up more screen space on larger devices */
+    @media (min-width: 768px) {
+      #app {
+        width: 90%;
+        max-width: 1024px;
+        padding: 2.5rem; /* Increased padding */
+      }
+    }
+  </style>
+</head>
+<body class="flex items-center justify-center p-4 sm:p-6 min-h-screen">
+  <div id="app" class="p-6 sm:p-8 rounded-2xl w-full max-w-2xl border border-gray-500">
+    <!-- Header section -->
+    <div class="flex items-center justify-between mb-6">
+      <div class="flex items-center">
+        <div class="flex-shrink-0 mr-4">
+          <!-- Swachh Bharat logo as a larger, round image -->
+          <img src="https://1.bp.blogspot.com/-3hatBLgnA6M/VwnzLx9ZcqI/AAAAAAAAE74/z5dQE1VgjFg4sWJ4yp2laew6sOfwVV0Sg/s1600/wsscc-to-support-swachh-bharat-slider.png" alt="Swachh Bharat Abhiyan Logo" class="w-20 h-20 rounded-full border-4 border-white object-cover" />
+        </div>
+        <div>
+          <h1 class="text-3xl sm:text-4xl font-extrabold text-white">Indore Clean-Up</h1>
+          <p class="mt-1 text-gray-200 text-sm sm:text-base">
+            Report unclean public spaces to the municipal corporation.
+          </p>
+        </div>
+      </div>
+      <div class="flex items-center space-x-2">
+        <button id="showFormButton" class="px-4 py-2 text-sm font-medium rounded-md text-white border-white border-2">
+          New Report
+        </button>
+        <button id="showReportsButton" class="px-4 py-2 text-sm font-medium rounded-md text-white border-2 border-transparent">
+          My Reports
+        </button>
+      </div>
+    </div>
+
+    <!-- Main content area -->
+    <div id="content">
+      <!-- The form section, initially visible -->
+      <form id="reportForm" class="space-y-8 p-8">
+        <div>
+          <label for="majorArea" class="block text-2xl font-medium dark-text mb-2">
+            Major Area
+          </label>
+          <select id="majorArea" name="majorArea" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm text-lg p-4 bg-gray-700 text-white" required>
+            <option value="">Select a major area</option>
+            <option value="Vijay Nagar">Vijay Nagar</option>
+            <option value="Palasia">Palasia</option>
+            <option value="Rajwada">Rajwada</option>
+            <option value="Annapurna">Annapurna</option>
+            <option value="Sudama Nagar">Sudama Nagar</option>
+            <option value="Mahalaxmi Nagar">Mahalaxmi Nagar</option>
+          </select>
+        </div>
+        <div>
+          <label for="colonyArea" class="block text-2xl font-medium dark-text mb-2">
+            Colony or Specific Area
+          </label>
+          <input
+            type="text"
+            id="colonyArea"
+            name="colonyArea"
+            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-lg p-4 bg-gray-700 text-white"
+            placeholder="e.g., Scheme No. 54"
+            required
+          />
+        </div>
+        <div>
+          <label for="problemType" class="block text-2xl font-medium dark-text mb-2">
+            Problem Type
+          </label>
+          <select id="problemType" name="problemType" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm text-lg p-4 bg-gray-700 text-white" required>
+            <option value="">Select a problem</option>
+            <option value="Littering">Littering</option>
+            <option value="Filled Dustbin">Filled Dustbin</option>
+            <option value="Drainage Issue">Drainage Issue</option>
+            <option value="Waterlogging">Waterlogging</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div id="otherProblemContainer" class="hidden">
+          <label for="otherProblemDescription" class="block text-2xl font-medium dark-text mb-2">
+            Please specify the problem:
+          </label>
+          <input
+            type="text"
+            id="otherProblemDescription"
+            name="otherProblemDescription"
+            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-lg p-4 bg-gray-700 text-white"
+            placeholder="e.g., Broken street light, illegal dumping"
+          />
+        </div>
+        <div>
+          <label for="description" class="block text-2xl font-medium dark-text mb-2">
+            Description
+          </label>
+          <textarea
+            id="description"
+            name="description"
+            rows="4"
+            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-lg p-4 bg-gray-700 text-white"
+            placeholder="Provide additional details about the issue..."
+            required
+          ></textarea>
+        </div>
+        <div>
+          <label for="image" class="block text-2xl font-medium dark-text mb-2">
+            Upload a Photo
+          </label>
+          <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md transition-colors hover:border-blue-500">
+            <div class="space-y-1 text-center">
+              <img id="imagePreview" src="" alt="Preview" class="mx-auto h-64 w-64 object-cover rounded-md hidden" />
+              <svg id="imagePlaceholder" class="mx-auto h-24 w-24 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                <path
+                  d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m-4-4l5.172 5.172a4 4 0 005.656 0L40 32"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+              <div class="flex text-lg text-gray-200 justify-center">
+                <label for="file-upload" class="relative cursor-pointer bg-transparent rounded-md font-medium text-blue-400 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
+                  <span>Upload a file</span>
+                  <input
+                    id="file-upload"
+                    name="file-upload"
+                    type="file"
+                    class="sr-only"
+                    accept="image/*"
+                    required
+                  />
+                </label>
+                <p class="pl-1">or drag and drop</p>
+              </div>
+              <p class="text-sm text-gray-400">PNG, JPG, GIF up to 10MB</p>
+            </div>
+          </div>
+        </div>
+        <p id="submissionError" class="mt-2 text-red-400 text-sm text-center font-medium hidden"></p>
+        <div>
+          <button
+            type="submit"
+            id="submitButton"
+            class="submit-button w-full flex justify-center py-4 px-6 border border-transparent rounded-md shadow-lg text-xl font-bold text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          >
+            Submit Report
+          </button>
+        </div>
+      </form>
+
+      <!-- The success message section, initially hidden -->
+      <div id="successMessage" class="text-center p-8 bg-green-500 border border-green-200 rounded-lg hidden">
+        <svg class="mx-auto h-24 w-24 text-white" fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path class="checkmark-path" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+        </svg>
+        <h2 class="mt-2 text-3xl font-bold text-white">
+          Report Submitted Successfully!
+        </h2>
+        <p class="mt-1 text-gray-200 text-xl">
+          Thank you for helping us keep your community clean. Your rewards are on the way!
+        </p>
+        <button
+          id="newReportButton"
+          class="mt-4 inline-flex items-center px-6 py-3 border border-transparent text-lg font-medium rounded-md shadow-sm text-white submit-button"
+        >
+          Submit another report
+        </button>
+      </div>
+
+      <!-- New: My Reports section, initially hidden -->
+      <div id="reportsListContainer" class="hidden">
+        <h2 class="text-3xl font-bold text-white mb-6">My Submitted Reports</h2>
+        <div id="rewardsSection" class="p-6 bg-gray-800 rounded-md shadow-md mb-8">
+            <h3 class="text-2xl font-semibold text-white mb-2">My Rewards</h3>
+            <p id="userPoints" class="text-3xl font-bold text-yellow-400">Points: 0</p>
+            <p id="rewardsMessage" class="mt-2 text-gray-300">Keep reporting to earn rewards!</p>
+        </div>
+        <div id="reportsList" class="space-y-6">
+          <p id="noReportsMessage" class="text-gray-400 text-lg">You haven't submitted any reports yet. Get started by clicking "New Report"!</p>
+        </div>
+      </div>
+    </div>
+    <!-- New: Shimmering text at the bottom -->
+    <div class="text-center mt-12">
+      <p class="text-2xl sm:text-3xl font-extrabold shimmer-text">
+        Indore has been India's cleanest city for seven consecutive years.
+      </p>
+      <p class="text-2xl sm:text-3xl font-extrabold shimmer-text mt-2">
+        Let's work together to achieve our eighth victory!
+      </p>
+    </div>
+  </div>
+
+  <script>
+    // Get all the necessary DOM elements
+    const reportForm = document.getElementById('reportForm');
+    const majorAreaSelect = document.getElementById('majorArea');
+    const colonyAreaInput = document.getElementById('colonyArea');
+    const problemTypeSelect = document.getElementById('problemType');
+    const descriptionInput = document.getElementById('description');
+    const fileUploadInput = document.getElementById('file-upload');
+    const imagePreview = document.getElementById('imagePreview');
+    const imagePlaceholder = document.getElementById('imagePlaceholder');
+    const submitButton = document.getElementById('submitButton');
+    const submissionError = document.getElementById('submissionError');
+    const successMessage = document.getElementById('successMessage');
+    const newReportButton = document.getElementById('newReportButton');
+    const showFormButton = document.getElementById('showFormButton');
+    const showReportsButton = document.getElementById('showReportsButton');
+    const reportsListContainer = document.getElementById('reportsListContainer');
+    const reportsList = document.getElementById('reportsList');
+    const noReportsMessage = document.getElementById('noReportsMessage');
+    const otherProblemContainer = document.getElementById('otherProblemContainer');
+    const otherProblemDescriptionInput = document.getElementById('otherProblemDescription');
+    const userPointsEl = document.getElementById('userPoints');
+    const rewardsMessageEl = document.getElementById('rewardsMessage');
+    
+    // Function to get and update points
+    function getUserPoints() {
+      return parseInt(localStorage.getItem('userPoints')) || 0;
+    }
+    
+    function updateUserPoints(points) {
+      localStorage.setItem('userPoints', points);
+      userPointsEl.textContent = `Points: ${points}`;
+      
+      if (points >= 500) {
+        rewardsMessageEl.textContent = "You're a Cleanliness Champion! Keep up the great work!";
+      } else if (points >= 200) {
+        rewardsMessageEl.textContent = "You're making a big difference! Keep it up!";
+      } else {
+        rewardsMessageEl.textContent = "Keep reporting to earn rewards!";
+      }
+    }
+    
+    // Set initial points
+    updateUserPoints(getUserPoints());
+
+    // --- Core Logic ---
+
+    // Listen for changes on the problem type dropdown
+    problemTypeSelect.addEventListener('change', function() {
+        if (this.value === 'Other') {
+            otherProblemContainer.classList.remove('hidden');
+            otherProblemDescriptionInput.required = true;
+        } else {
+            otherProblemContainer.classList.add('hidden');
+            otherProblemDescriptionInput.required = false;
+        }
+    });
+
+    // Function to handle image change and display a preview
+    fileUploadInput.addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          imagePreview.src = event.target.result;
+          imagePreview.classList.remove('hidden');
+          imagePlaceholder.classList.add('hidden');
+        };
+        reader.readAsDataURL(file);
+      } else {
+        imagePreview.src = '';
+        imagePreview.classList.add('hidden');
+        imagePlaceholder.classList.remove('hidden');
+      }
+    });
+
+    // Function to handle form submission
+    reportForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      // Basic validation
+      let hasError = false;
+      if (!majorAreaSelect.value || !colonyAreaInput.value || !problemTypeSelect.value || !descriptionInput.value || !fileUploadInput.files[0]) {
+        submissionError.textContent = 'Please fill in all fields and upload an image.';
+        submissionError.classList.remove('hidden');
+        hasError = true;
+      }
+      if (problemTypeSelect.value === 'Other' && !otherProblemDescriptionInput.value) {
+        submissionError.textContent = 'Please specify the problem in the "Other" field.';
+        submissionError.classList.remove('hidden');
+        hasError = true;
+      }
+
+      if (hasError) {
+        return; // Stop execution if there is a validation error
+      }
+
+      // Hide any previous errors
+      submissionError.classList.add('hidden');
+
+      // Show loading state on button
+      submitButton.disabled = true;
+      submitButton.innerHTML = `
+        <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        Submitting...
+      `;
+      submitButton.classList.add('bg-blue-300', 'cursor-not-allowed');
+      submitButton.classList.remove('submit-button', 'hover:scale-105');
+
+      try {
+        // Simulate a network request
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        // No points added here, points are awarded after verification
+        
+        // Save the report to local storage
+        const reports = JSON.parse(localStorage.getItem('reports')) || [];
+        const reader = new FileReader();
+        reader.onloadend = function() {
+            const report = {
+                id: Date.now(),
+                majorArea: majorAreaSelect.value,
+                colonyArea: colonyAreaInput.value,
+                problemType: problemTypeSelect.value === 'Other' ? otherProblemDescriptionInput.value : problemTypeSelect.value,
+                description: descriptionInput.value,
+                image: reader.result,
+                status: 'Pending',
+                timestamp: new Date().toLocaleString()
+            };
+            reports.push(report);
+            localStorage.setItem('reports', JSON.stringify(reports));
+            
+            // Hide the form and show the success message
+            reportForm.classList.add('hidden');
+            successMessage.classList.remove('hidden');
+        };
+        reader.readAsDataURL(fileUploadInput.files[0]);
+
+      } catch (error) {
+        submissionError.textContent = 'An error occurred. Please try again.';
+        submissionError.classList.remove('hidden');
+      } finally {
+        // Reset button state
+        submitButton.disabled = false;
+        submitButton.textContent = 'Submit Report';
+        submitButton.classList.remove('bg-blue-300', 'cursor-not-allowed');
+        submitButton.classList.add('submit-button', 'hover:scale-105');
+      }
+    });
+
+    // Function to reset the form and start a new report
+    newReportButton.addEventListener('click', function() {
+      // Hide the success message
+      successMessage.classList.add('hidden');
+
+      // Clear the form fields
+      reportForm.reset();
+      
+      // Reset image preview
+      imagePreview.src = '';
+      imagePreview.classList.add('hidden');
+      imagePlaceholder.classList.remove('hidden');
+
+      // Show the form again
+      reportForm.classList.remove('hidden');
+    });
+
+    // --- New Features ---
+
+    // Function to fetch and display reports from local storage
+    function displayReports() {
+      reportsList.innerHTML = ''; // Clear previous reports
+      const reports = JSON.parse(localStorage.getItem('reports')) || [];
+
+      if (reports.length === 0) {
+        noReportsMessage.classList.remove('hidden');
+      } else {
+        noReportsMessage.classList.add('hidden');
+        reports.forEach(report => {
+          const reportElement = document.createElement('div');
+          reportElement.classList.add('bg-gray-800', 'p-4', 'rounded-md', 'shadow-md', 'flex', 'flex-col', 'md:flex-row', 'md:items-center', 'space-y-4', 'md:space-y-0', 'md:space-x-4');
+          reportElement.innerHTML = `
+            <img src="${report.image}" alt="Report image" class="h-24 w-24 object-cover rounded-md flex-shrink-0">
+            <div class="flex-grow">
+              <h3 class="text-xl font-semibold text-white mb-1">${report.majorArea} - ${report.colonyArea}</h3>
+              <p class="text-gray-400 text-sm mb-2">Problem: ${report.problemType}</p>
+              <p class="text-gray-400 text-sm mb-2">${report.description}</p>
+              <div class="flex items-center text-gray-500 text-xs">
+                <span>Status:</span>
+                <span class="ml-2 font-medium text-yellow-300">${report.status}</span>
+              </div>
+              <p class="text-xs text-gray-500 mt-1">Submitted on: ${report.timestamp}</p>
+            </div>
+          `;
+          reportsList.appendChild(reportElement);
+        });
+      }
+    }
+
+    // Toggle between the report form and the reports list
+    showFormButton.addEventListener('click', () => {
+      reportsListContainer.classList.add('hidden');
+      successMessage.classList.add('hidden');
+      reportForm.classList.remove('hidden');
+      showFormButton.classList.add('border-white');
+      showReportsButton.classList.remove('border-white');
+    });
+
+    showReportsButton.addEventListener('click', () => {
+      reportForm.classList.add('hidden');
+      successMessage.classList.add('hidden');
+      reportsListContainer.classList.remove('hidden');
+      showReportsButton.classList.add('border-white');
+      showFormButton.classList.remove('border-white');
+      displayReports(); // Load reports when the button is clicked
+    });
+  </script>
+</body>
+</html>
